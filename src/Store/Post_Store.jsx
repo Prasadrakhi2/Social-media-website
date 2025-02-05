@@ -1,4 +1,4 @@
-import { createContext, useReducer } from "react";
+import { createContext, useEffect, useReducer, useState } from "react";
 
 export const PostList = createContext(
     {
@@ -6,6 +6,7 @@ export const PostList = createContext(
         addPost : () => {},
         add_Initial_Post : () => {},
         deletePost : () => {},
+        faching : false,
     }
 );
 
@@ -19,7 +20,7 @@ const PostListReducer = (currentPost, action) =>{
     }
 
     else if(action.type === 'ADD_POST'){
-        newPost = [action.paylod, ...currentPost];
+        newPost = [action.paylod.post, ...currentPost];
     }
     return newPost;
 }
@@ -28,15 +29,11 @@ const PostListProvider = ({children}) =>{
 
     let[postList, dispachPostList] = useReducer(PostListReducer, []);
 
-    let addPost = (userId, postTitle, postContent, reactions, tagElement) =>{
+    let addPost = (post) =>{
        dispachPostList({
         type : 'ADD_POST',
         paylod :{
-            id: Date.now(),
-            title :  postTitle,
-            body :  postContent,
-            reactions : reactions,
-            tags  : tagElement,
+           post,
         }
        })
     }
@@ -59,12 +56,34 @@ const PostListProvider = ({children}) =>{
         })
     }
 
+    
+   let [faching, setFached] = useState(false);
+
+    useEffect(()=>
+        {
+            const controller = new AbortController();
+            const signal = controller.signal;
+    
+            setFached(true);
+            fetch('https://dummyjson.com/posts', {signal})
+            .then(res => res.json())
+            .then(obj => {
+                add_Initial_Post(obj.posts)
+                setFached(false);
+            });
+            return ()=>{
+                controller.abort();
+            }
+        },
+        [])
+
     return (
         <PostList.Provider value={{
             postList,
             addPost,
             add_Initial_Post,
             deletePost,
+            faching,
         }}>
             {children}
         </PostList.Provider>

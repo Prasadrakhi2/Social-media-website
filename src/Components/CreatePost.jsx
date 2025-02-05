@@ -1,6 +1,7 @@
 import { useContext, useRef } from "react";
 import { PostList } from "../Store/Post_Store";
 
+
 const CreatePost = () =>{
 
     let {addPost} = useContext(PostList);
@@ -23,9 +24,24 @@ const CreatePost = () =>{
         PostTitleElement.current.value = "";
         PostContaintElement.current.value = "";
         ractionElement.current.value = "",
-        tagElement.current.value = ""
+        tagElement.current.value = "",
 
-        addPost(userId, postTitle, postContent, reactions, tags);
+
+        fetch('https://dummyjson.com/posts/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId : userId,
+                title :  postTitle,
+                body :  postContent,
+                reactions : reactions,
+                tags  : tags,
+            })
+          })
+          .then(res => res.json())
+          .then(post => {
+            addPost(post);
+          });
     }
 
     return(

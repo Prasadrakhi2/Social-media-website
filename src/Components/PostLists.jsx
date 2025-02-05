@@ -4,31 +4,9 @@ import {PostList} from "../Store/Post_Store";
 import WelcomeMsg from "./WelcomeMsg";
 import Loading from "./Loading";
 
-
 const PostLists = () =>{
-   let {postList} = useContext(PostList);
-   let {add_Initial_Post} = useContext(PostList);
-   
-   let [faching, setFached] = useState(false);
-   
-   useEffect(()=>
-    {
-        const controller = new AbortController();
-        const signal = controller.signal;
-
-        setFached(true);
-        fetch('https://dummyjson.com/posts', {signal})
-        .then(res => res.json())
-        .then(obj => {
-            add_Initial_Post(obj.posts)
-            setFached(false);
-        });
-        return ()=>{
-            controller.abort();
-        }
-    },
-    [])
-
+   let {postList,faching} = useContext(PostList);
+  
     return(
         <>
         {faching && <Loading></Loading>}
